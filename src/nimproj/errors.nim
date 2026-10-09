@@ -4,7 +4,7 @@
 type
   ProjError* = object of CatchableError
     ## Base error type for PROJ operations.
-    errno*: cint  ## PROJ's numeric error code, or 0 when the failure had none.
+    projErrno*: cint  ## PROJ's numeric error code, or 0 when the failure had none.
   ProjInitError* = object of ProjError
     ## Raised when a `ProjContext` cannot be created — in practice, `libproj`
     ## is not installed or a different one than expected is on the path.

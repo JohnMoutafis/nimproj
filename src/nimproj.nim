@@ -5,13 +5,14 @@
 ## **not** re-exported.
 ## See also: the user guide at `docs/index.md`.
 ##
-## v0.1.0 surface: the context lifecycle (`ProjContext`, `projVersion` /
-## `projVersionString`) and the `ProjError` hierarchy. `Crs` lands in v0.2.0,
-## `Transformer` in v0.3.0.
+## v0.2.0 surface: the context lifecycle (`ProjContext`, `projVersion` /
+## `projVersionString`), the `ProjError` hierarchy, and `Crs`.
+## `Transformer` lands in v0.3.0.
 
 # ── Core ──────────────────────────────────────────────────────────────────────
 import nimproj/errors
 import nimproj/context
+import nimproj/crs
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Public exports — only user-facing modules are listed here.
@@ -20,3 +21,4 @@ import nimproj/context
 
 export errors
 export context
+export crs

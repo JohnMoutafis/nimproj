@@ -7,9 +7,9 @@ Maintainer checklist, one version at a time. The version number lives in
 
 1. **Gate:** CI green on all matrix entries; `nimble test` and
    `mkdocs build --strict` green locally.
-2. **Fixtures:** if the local PROJ moved, regenerate them
-   (`bash tests/tools/gen_fixtures.sh`) and commit with the PROJ release string
-   in the fixture header. Never edit a fixture by hand.
+2. **Test oracle:** nothing to regenerate — the differential CRS tests invoke
+   the system `projinfo` at run time, so they track whatever PROJ is installed
+   (`proj-bin` on Debian/Ubuntu).
 3. **Version bump:** set `version` in `nimproj.nimble`.
 4. **Changelog:** move `## [Unreleased]` into `## [x.y.z] - YYYY-MM-DD`, in the
    [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) form. One entry per

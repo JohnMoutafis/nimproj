@@ -54,6 +54,7 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Context Lifecycle: getting-started/context-lifecycle.md
+    - Coordinate Reference Systems: getting-started/crs.md
   - Patterns:
     - Error Types: patterns/error-types.md
   - Support Policy: support.md

@@ -8,10 +8,11 @@ PROJJSON or PROJ strings, query the EPSG registry, inspect the candidate
 coordinate operations between two CRS, and measure distances on an ellipsoid —
 from idiomatic Nim, over the same engine GDAL, PostGIS and QGIS use.
 
-!!! warning "v0.1.0 in progress"
-    Nothing is published yet. v0.1.0 ships the package scaffolding, the Layer-0
-    bindings, `ProjContext` and the version functions. The quick start below is
-    the **target** API, delivered in v0.3.0.
+!!! note "v0.2.0"
+    v0.2.0 ships `Crs` — coordinate reference systems: definitions, identity,
+    predicates and WKT/PROJJSON/PROJ-string output. See
+    [Coordinate Reference Systems](getting-started/crs.md). The quick start
+    below is the **target** API, delivered in v0.3.0.
 
 ## Quick start
 

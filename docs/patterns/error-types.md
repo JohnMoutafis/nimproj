@@ -4,7 +4,7 @@ nimproj defines a hierarchy of error types, all inheriting from `ProjError` (whi
 
 ```nim
 ProjError* = object of CatchableError
-  errno*: cint                         # PROJ's numeric error code, 0 when there was none
+  projErrno*: cint                    # PROJ's numeric error code, 0 when there was none
 ProjInitError*  = object of ProjError  # a ProjContext could not be created
 CrsError*       = object of ProjError  # a CRS definition could not be parsed (v0.2.0)
 TransformError* = object of ProjError  # a coordinate transformation failed (v0.3.0)
@@ -42,6 +42,8 @@ A *scalar* call raises on failure. A *bulk* call — one transform over an array
 
 ## Reading PROJ's own message
 
-`lastError()` on a `ProjContext` returns PROJ's message for the most recent failure on that context, or `""` when the last operation succeeded — PROJ clears its error code on success, so it means "the last operation", not "any operation ever". Every raised type carries the numeric code in `errno` when PROJ reported one.
+`lastError()` on a `ProjContext` returns PROJ's message for the most recent failure on that context, or `""` when the last operation succeeded — PROJ clears its error code on success, so it means "the last operation", not "any operation ever". Every raised type carries the numeric code in `projErrno` when PROJ reported one.
+
+The field is `projErrno`, not `errno`: `errno` is a macro in C's `<errno.h>`, so a Nim field of that name emits `int errno;` into the generated C and the preprocessor rewrites it into a function call. The collision is invisible on Linux and macOS, where nothing pulls `<errno.h>` into the translation unit, and breaks the build on Windows, where `<stdlib.h>` does. `tests/t_errno_macro.nim` forces the header in on every platform so the collision cannot come back.
 
 See also [Context lifecycle](../getting-started/context-lifecycle.md) for how a context owns that error state.

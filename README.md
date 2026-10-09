@@ -20,8 +20,6 @@ instructions.
 
 ## Quick start
 
-Target API — the shape v0.3.0 delivers:
-
 ```nim
 import nimproj
 
@@ -45,6 +43,7 @@ default is the one almost every caller means.
 
 - [Installation](docs/getting-started/installation.md)
 - [Context lifecycle](docs/getting-started/context-lifecycle.md) — `initProjContext`, one owner per context, thread safety, `lastError`
+- [Coordinate reference systems](docs/getting-started/crs.md) — `initCrs`, identity, predicates, WKT/PROJJSON/PROJ-string output, ownership
 - [Error types](docs/patterns/error-types.md) — `ProjError` and its subtypes, and the one case that does not raise
 - [Support policy](docs/support.md) — supported PROJ and Nim versions, platforms
 - [Contributing](CONTRIBUTING.md) — setup, testing policy, code style, release process

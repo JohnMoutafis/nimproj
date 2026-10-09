@@ -81,7 +81,7 @@ suite "ProjError hierarchy":
 
   test "the numeric code survives when there is one":
     try:
-      raise (ref CrsError)(msg: "Invalid PROJ string syntax", errno: 1025)
+      raise (ref CrsError)(msg: "Invalid PROJ string syntax", projErrno: 1025)
     except ProjError as e:
-      check e.errno == 1025
+      check e.projErrno == 1025
       check e.msg == "Invalid PROJ string syntax"
