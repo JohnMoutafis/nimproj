@@ -1,0 +1,34 @@
+# Nim build artifacts
+nimcache/
+*.exe
+*.out
+*.o
+*.a
+
+# Nimble
+nimblecache/
+.nimble/
+nimble.lock  # add only once deps are stable
+
+htmldocs/
+site/
+docs/adr/
+docs/api/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dev artifacts
+.idea/
+.omp-reports/
+.serena/
+
+# Binaries from running a single test by hand (nim r tests/t_x.nim writes the
+# binary next to its source, at any depth)
+tests/**/t_*
+!tests/**/t_*.nim
+
+# tmp folder
+tmp/
+learning/

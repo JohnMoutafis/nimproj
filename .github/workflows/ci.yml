@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "release/**"]
+  pull_request:
+    branches: [main, "release/**"]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        nim-version: [stable, devel]
+        # 'devel' + Windows is not a supported combination in the setup action
+        exclude:
+          - os: windows-latest
+            nim-version: devel
+    runs-on: ${{ matrix.os }}
+    # Windows linking and Nim devel are the two entries expected to break first;
+    # they report without blocking the merge gate.
+    continue-on-error: ${{ matrix.nim-version == 'devel' || matrix.os == 'windows-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jiro4989/setup-nim-action@v2
+        with:
+          nim-version: ${{ matrix.nim-version }}
+
+      - name: Install PROJ (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libproj-dev proj-data
+          pkg-config --modversion proj
+
+      - name: Install PROJ (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install proj
+          echo "LIBRARY_PATH=$(brew --prefix proj)/lib" >> $GITHUB_ENV
+          echo "C_INCLUDE_PATH=$(brew --prefix proj)/include" >> $GITHUB_ENV
+          echo "PROJ_DATA=$(brew --prefix proj)/share/proj" >> $GITHUB_ENV
+
+      - name: Setup MSVC command prompt
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install PROJ (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          vcpkg install proj --triplet x64-windows
+          $root = $env:VCPKG_INSTALLATION_ROOT
+          $lib  = Join-Path $root "installed\x64-windows\lib"
+          $bin  = Join-Path $root "installed\x64-windows\bin"
+          $inc  = Join-Path $root "installed\x64-windows\include"
+          echo "LIB=$lib;$env:LIB" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "INCLUDE=$inc;$env:INCLUDE" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "$bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+          # MSVC's link.exe ignores `-lproj` (D9002) and leaves every proj_*
+          # symbol unresolved, so the import library has to be named directly.
+          # Print it here so the first Windows failure names the file instead of
+          # sending someone hunting through the vcpkg tree.
+          Write-Host "vcpkg proj link artifacts:"
+          Get-ChildItem $lib -Filter *proj* | Select-Object -ExpandProperty Name
+
+      # vcpkg's layout is not guaranteed, so find the registry rather than guess
+      # its path: without proj.db every CRS-by-EPSG test fails.
+      - name: Locate proj.db (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $db = Get-ChildItem -Path $env:VCPKG_INSTALLATION_ROOT -Filter proj.db -Recurse -ErrorAction SilentlyContinue |
+                  Select-Object -First 1
+          if ($db) {
+            echo "PROJ_DATA=$($db.DirectoryName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+            Write-Host "proj.db found at $($db.FullName)"
+          } else {
+            Write-Warning "proj.db not found - tests resolving EPSG codes will fail"
+          }
+
+      - name: PROJ version
+        shell: bash
+        run: proj 2>&1 | head -1 || true
+
+      # `nimble test` prints failures, but this nimble (0.22.2) exits 0 even when
+      # a task raises, so the merge gate has to be a shell exit code instead.
+      # Keep this list in step with `findTestFiles` in nimproj.nimble: `t*.nim`,
+      # recursively, excluding the compile-fail directory.
+      - name: Test
+        shell: bash
+        run: |
+          set -e
+          for f in $(find tests -name 't*.nim' -not -path '*/compile_fail/*' | sort); do
+            echo "::group::$f"
+            nim r --hints:off "$f"
+            echo "::endgroup::"
+          done
+          echo "::group::negative compile check"
+          if nim c --hints:off tests/compile_fail/noncopyable.nim; then
+            echo "::error::tests/compile_fail/noncopyable.nim compiled - ProjContext is copyable again"
+            exit 1
+          fi
+          echo "compile-fail OK: ProjContext is non-copyable"
+          echo "::endgroup::"
+
+      # `nimble check` is a built-in command, so unlike a task its exit code is
+      # trustworthy.
+      - name: Check the package
+        run: nimble check
+
+      - name: Build documentation
+        run: nim doc --project --index:on --hints:off src/nimproj.nim

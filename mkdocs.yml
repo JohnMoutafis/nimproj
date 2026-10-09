@@ -1,0 +1,89 @@
+site_name: nimproj
+site_description: Nim binding for the PROJ coordinate transformation library (libproj)
+site_url: https://johnmoutafis.github.io/nimproj/
+repo_url: https://github.com/JohnMoutafis/nimproj
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: en
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to system preference
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.indexes
+    - navigation.sections
+    - content.code.copy
+  font:
+    text: Roboto
+    code: Fira Code
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - pymdownx.snippets
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Context Lifecycle: getting-started/context-lifecycle.md
+  - Patterns:
+    - Error Types: patterns/error-types.md
+  - Support Policy: support.md
+  - Contributing:
+    - Development Setup: contributing/setup.md
+    - Testing & CI: contributing/testing.md
+    - Code Style: contributing/code-style.md
+    - Release Process: contributing/release-process.md
+  - API Reference: api/nimproj.html
+
+# The decision log is for contributors, not for users of the library. Its
+# vault-relative links are provenance markers by design (see docs/adr/README.md),
+# so the files are excluded from the site rather than link-checked against it.
+exclude_docs:
+  adr/
+
+# Defaults for these are 'info', which `--strict` does not fail on. Promote them
+# so a broken relative link or a stale anchor breaks the build instead of
+# shipping a 404 on the published site.
+validation:
+  links:
+    absolute_links: warn
+    unrecognized_links: warn
+    anchors: warn
+  nav:
+    omitted_files: info
+    not_found: warn
+    absolute_links: warn
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/JohnMoutafis/nimproj
